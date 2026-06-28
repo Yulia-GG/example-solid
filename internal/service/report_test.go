@@ -28,9 +28,10 @@ type MockNotifier struct {
 	Customer string
 }
 
-func (n *MockNotifier) Send(customer string) {
+func (n *MockNotifier) Send(customer string) error {
 	n.Called = true
 	n.Customer = customer
+	return nil
 }
 
 type MockRepositoryTable struct {
@@ -44,8 +45,13 @@ func (t *MockRepositoryTable) CreateTable() error {
 
 func TestOrderService(t *testing.T) {
 
-	// Передаем моки в сервис (создали мок-объект)
-	mockService := NewOrderService(&MockRepositoryWriter{}, &MockNotifier{}, &MockRepositoryTable{})
+	// создали мок-объекты
+	mockRepositoryWriter := &MockRepositoryWriter{}
+	mockNotifier := &MockNotifier{}
+	mockRepositoryTable := &MockRepositoryTable{}
+
+	// Вызываем сервис и передаем моки
+	mockService := NewOrderService(mockRepositoryWriter, mockNotifier, mockRepositoryTable)
 
 	// Тестируем
 	err := mockService.CreateTable()
@@ -57,9 +63,13 @@ func TestOrderService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("не удалось создать заказ: %v", err)
 	}
-	if mockService.MockRepositoryWriter.Called {
+
+	if !mockRepositoryWriter.Called {
 		t.Fatalf("метод CreateOrder не был вызван")
 	}
 
+	if mockRepositoryWriter.Order != ""Иван", []string{"apple", "banana"}, 10.5" {
+t.Errorf("Ожидаемое сообщение: 'Иван, [apple, banana], 10.5', получено: 's%'", mockRepositoryWriter.Order)
 }
 
+}
