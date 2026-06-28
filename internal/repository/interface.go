@@ -11,8 +11,3 @@ CreateOrder(customer string, products []string, total float64) error
 type RepositoryTable interface {
 CreateTable() error
 }
-
-// Интерфейс для отправки уведомлений
-type Notifier interface {
-Send(customer string)
-}
