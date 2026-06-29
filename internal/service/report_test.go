@@ -2,6 +2,7 @@ package service
 
 import (
 	"testing"
+	"reflect"
 )
 
 // мог-реализация с ручным отслеживанием вызовов
@@ -59,6 +60,10 @@ func TestOrderService(t *testing.T) {
 		t.Fatalf("не удалось создать таблицу: %v", err)
 	}
 
+	if !mockRepositoryTable.Called {
+		t.Fatalf("метод CreateTable не был вызван")
+	}
+
 	err = mockService.ProcessAndNotify("Иван", []string{"apple", "banana"}, 10.5)
 	if err != nil {
 		t.Fatalf("не удалось создать заказ: %v", err)
@@ -68,8 +73,20 @@ func TestOrderService(t *testing.T) {
 		t.Fatalf("метод CreateOrder не был вызван")
 	}
 
-	if mockRepositoryWriter.Order != ""Иван", []string{"apple", "banana"}, 10.5" {
-t.Errorf("Ожидаемое сообщение: 'Иван, [apple, banana], 10.5', получено: 's%'", mockRepositoryWriter.Order)
-}
+	expectedOrder := Order{
+		Customer: "Иван",
+		Products: []string{"apple", "banana"},
+		Total: 10.5,
+	}
+	if !reflect.DeepEqual(mockRepositoryWriter.Order, expectedOrder) {
+		t.Errorf("ожидали заказ: %+v, получили: %+v", expectedOrder, mockRepositoryWriter.Order)
+	}
 
+	if !mockNotifier.Called {
+		t.Fatalf("метод Send не был вызван")
+	}
+
+	if mockNotifier.Customer != "Иван" {
+		t.Errorf("ожидали клиента Иван, получили: %s", mockNotifier.Customer)
+	}
 }
